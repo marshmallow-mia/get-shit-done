@@ -346,6 +346,18 @@ Join the GSD Discord community.
 
 Usage: `/gsd:join-discord`
 
+**`/gsd:analyze-game-protocol [binary]`**
+Reverse engineer video game server protocols using Ghidra and MCP.
+
+- Analyze legacy/shut-down game binaries to understand server communication
+- Extract network functions, message formats, and authentication flows
+- Generate complete protocol specifications and implementation guides
+- Uses Ghidra for binary analysis and MCP for documentation generation
+- Perfect for recreating servers when official ones are no longer available
+
+Usage: `/gsd:analyze-game-protocol ./game.exe`
+Usage: `/gsd:analyze-game-protocol` (interactive mode)
+
 ## Files & Structure
 
 ```
