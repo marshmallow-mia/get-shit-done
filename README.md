@@ -332,6 +332,47 @@ Use for: bug fixes, small features, config changes, one-off tasks.
 
 ---
 
+### Game Protocol Analysis
+
+```
+/gsd:analyze-game-protocol [binary path]
+```
+
+**For reverse engineering video game server protocols.**
+
+This specialized feature helps you analyze legacy or shut-down games to understand their server communication protocols. Perfect for recreating servers when official ones are no longer available.
+
+**What it does:**
+
+1. **Guides Analysis** — Walks you through analyzing game binaries with Ghidra
+2. **Extracts Protocol** — Identifies network functions, message formats, and authentication
+3. **Documents Everything** — Generates complete protocol specifications
+4. **Provides Implementation** — Creates server implementation guides with code samples
+
+**Key features:**
+
+- **Ghidra Integration** — Leverages NSA's powerful reverse engineering tool
+- **MCP-Assisted** — Uses AI to identify patterns and generate documentation
+- **Systematic Approach** — Structured workflow from initial analysis to complete docs
+- **Multiple Sessions** — Track progress across multiple analysis sessions
+
+**Use case:** You have a favorite multiplayer game from years ago. The servers shut down in 2015. Using this tool, you can analyze the game client to understand the protocol, then build a compatible server to play with friends again.
+
+```
+/gsd:analyze-game-protocol ./LegacyMMO.exe
+> Game name? "Legacy MMO"
+> Platform? "Windows x64"
+> Analysis goal? "Understand authentication and player movement protocol"
+```
+
+**Creates:** `.planning/game-protocol-analysis/{game}/PROTOCOL.md`, `SERVER-GUIDE.md`, analysis sessions
+
+**References:**
+- [Ghidra & MCP Guide](/get-shit-done/references/game-protocol-analysis/GHIDRA-MCP-GUIDE.md)
+- [Common Protocol Patterns](/get-shit-done/references/game-protocol-analysis/COMMON-PATTERNS.md)
+
+---
+
 ## Why It Works
 
 ### Context Engineering
@@ -472,6 +513,7 @@ You're never locked in. The system adapts.
 | `/gsd:check-todos` | List pending todos |
 | `/gsd:debug [desc]` | Systematic debugging with persistent state |
 | `/gsd:quick` | Execute ad-hoc task with GSD guarantees |
+| `/gsd:analyze-game-protocol [binary]` | Reverse engineer game server protocols using Ghidra and MCP |
 
 <sup>¹ Contributed by reddit user OracleGreyBeard</sup>
 
