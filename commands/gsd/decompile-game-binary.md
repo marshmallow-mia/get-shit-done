@@ -1,7 +1,7 @@
 ---
 name: gsd:decompile-game-binary
-description: Automate reverse engineering and decompilation of legacy game binaries using Ghidra and MCP
-argument-hint: [game binary path or project name]
+description: Automate reverse engineering and decompilation of legacy game binaries using Ghidra MCP server
+argument-hint: [project name or ghidra project identifier]
 allowed-tools:
   - Read
   - Write
@@ -12,17 +12,19 @@ allowed-tools:
 ---
 
 <objective>
-Automate the reverse engineering and decompilation of legacy game binaries using Ghidra and Model Context Protocol (MCP). Produce compilable source code that preserves all original game functionality.
+Automate the reverse engineering and decompilation of legacy game binaries using the Ghidra MCP server. Produce compilable source code that preserves all original game functionality.
 
-**Use case:** Legacy games where you want to understand the implementation, maintain the codebase, or port to modern platforms.
+**Use case:** Legacy games already analyzed in Ghidra MCP server where you want to generate clean compilable source code.
 
-**Orchestrator role:** Gather game info, set up decompilation environment, spawn gsd-game-decompiler agent, manage decompilation sessions, generate compilable source code and documentation.
+**Key assumption:** Binaries are already loaded and analyzed in the Ghidra MCP server. This command connects to the MCP server to access the decompiled code.
 
-**Why subagent:** Binary decompilation with Ghidra is complex and requires significant context. Fresh context per decompilation session ensures thorough analysis without context degradation.
+**Orchestrator role:** Connect to Ghidra MCP, identify available projects, spawn gsd-game-decompiler agent to access decompiled code via MCP, generate compilable source code and documentation.
+
+**Why subagent:** Binary decompilation with Ghidra MCP is complex and requires significant context. Fresh context per decompilation session ensures thorough analysis without context degradation.
 </objective>
 
 <context>
-Game binary path or project: $ARGUMENTS
+Project name or identifier: $ARGUMENTS
 
 Check for existing decompilation sessions:
 ```bash
@@ -63,47 +65,55 @@ If sessions exist AND no $ARGUMENTS:
 - User can select one to continue OR start new decompilation
 
 If $ARGUMENTS provided OR user starts new:
-- Continue to information gathering
+- Continue to Ghidra MCP connection
 
-## 2. Gather Game Information
+## 2. Connect to Ghidra MCP Server
 
-Use AskUserQuestion for each (skip if obvious from arguments):
+**The binaries are already analyzed in the Ghidra MCP server. We connect to access them.**
 
-1. **Game Name** - What's the game called?
-2. **Binary Location** - Where is the game binary/executable? (full path)
-3. **Platform** - What platform? (Windows/Linux/Mac/Console)
+Check if Ghidra MCP server is accessible:
+
+```bash
+# Check if MCP server is running
+# This assumes the Ghidra MCP server is available via standard MCP protocol
+echo "Attempting to connect to Ghidra MCP server..."
+```
+
+Use AskUserQuestion to gather:
+
+1. **Project Name** - What do you want to call this decompilation project?
+2. **Ghidra Project** - Which Ghidra project in MCP contains the binary? (provide list if possible)
+3. **Binary Name** - Which binary within the Ghidra project? 
 4. **Game Type** - What type of game? (FPS, RPG, Strategy, etc.)
-5. **Known Info** - Any existing info about the game? (engine, language, build tools)
-6. **Decompilation Goal** - What specifically do you want to achieve? (understand logic, port to new platform, add features, etc.)
-7. **Environment Setup** - Do you have Ghidra installed? (yes/no)
+5. **Decompilation Goal** - What specifically do you want to achieve? (understand logic, port to new platform, add features, etc.)
+
+**Note:** The Ghidra MCP server should already have:
+- Binary imported and analyzed
+- Functions identified
+- Initial decompilation complete
 
 Confirm all information before proceeding.
 
-## 3. Environment Setup Verification
+## 3. Verify MCP Access
 
-Check if Ghidra is available:
+Test connection to Ghidra MCP and verify project access:
 
 ```bash
-which ghidra 2>/dev/null || echo "Ghidra not found in PATH"
+# Verify we can access the specified Ghidra project via MCP
+# The actual MCP connection will be handled by the agent
+echo "Verifying access to Ghidra project via MCP..."
 ```
 
-If Ghidra not found:
-- Inform user about Ghidra installation requirements
-- Provide download link: https://ghidra-sre.org/
-- Ask if they want to:
-  - a) Install Ghidra now (provide instructions)
-  - b) Specify custom Ghidra path
-  - c) Continue with manual decompilation guidance
-
-If proceeding without Ghidra:
-- Switch to "manual decompilation mode" with guidance only
+If project not accessible via MCP:
+- Inform user that the binary needs to be loaded in Ghidra MCP first
+- Provide guidance on how to set up Ghidra MCP server
+- Offer to create documentation-only mode without MCP access
 
 ## 4. Create Decompilation Directory Structure
 
 ```bash
 mkdir -p .planning/game-decompilation/{project-slug}
-mkdir -p .planning/game-decompilation/{project-slug}/ghidra-projects
-mkdir -p .planning/game-decompilation/{project-slug}/sessions
+mkdir -p .planning/game-decompilation/{project-slug}/mcp-sessions
 mkdir -p docs/decompilation-findings
 mkdir -p features/decompiled_source/{project-slug}
 ```
@@ -114,9 +124,9 @@ Create initial project file:
 # Game Decompilation: {game-name}
 
 ## Project Information
-- **Game Name:** {game-name}
-- **Binary Path:** {binary-path}
-- **Platform:** {platform}
+- **Project Name:** {project-name}
+- **Ghidra Project:** {ghidra-project-name}
+- **Binary:** {binary-name}
 - **Game Type:** {game-type}
 - **Decompilation Started:** {timestamp}
 - **Status:** In Progress
@@ -124,14 +134,18 @@ Create initial project file:
 ## Decompilation Goals
 {goals}
 
-## Known Information
-{known-info}
+## Ghidra MCP Access
+- **MCP Server:** Connected
+- **Project:** {ghidra-project-name}
+- **Binary:** {binary-name}
+- **Analysis Status:** Pre-analyzed in Ghidra
 
 ## Decompilation Sessions
-- Session 1: {timestamp} - Initial decompilation
+- Session 1: {timestamp} - Initial decompilation from MCP
 
 ## Progress
-- [ ] Binary analysis complete
+- [ ] MCP connection established
+- [ ] Decompiled code retrieved from Ghidra MCP
 - [ ] Function identification complete
 - [ ] Variable renaming in progress
 - [ ] Documentation in progress
@@ -149,39 +163,42 @@ Fill prompt with gathered information:
 
 ```markdown
 <objective>
-Decompile game binary to produce clean, compilable source code that preserves all original game functionality.
+Access decompiled code from Ghidra MCP server and produce clean, compilable source code that preserves all original game functionality.
 
-**Project:** {game-name}
-**Binary:** {binary-path}
-**Platform:** {platform}
+**Project:** {project-name}
+**Ghidra Project:** {ghidra-project-name}
+**Binary:** {binary-name}
 **Game Type:** {game-type}
 </objective>
 
 <decompilation_context>
-**Known Info:** {known-info}
 **Decompilation Goals:** {goals}
 
-**Ghidra Available:** {ghidra-available}
+**Ghidra MCP Access:** Binary already analyzed in Ghidra MCP server
+**MCP Project:** {ghidra-project-name}
+**Binary Name:** {binary-name}
 **Project Directory:** .planning/game-decompilation/{project-slug}/
 **Output Directory:** features/decompiled_source/{project-slug}/
 **Documentation Directory:** docs/decompilation-findings.md
 </decompilation_context>
 
 <environment>
-**Ghidra Path:** {ghidra-path or "Use system PATH"}
-**MCP Integration:** Available for code analysis and generation
+**Ghidra MCP Server:** Available and connected
+**MCP Project:** {ghidra-project-name}
+**Binary Status:** Pre-analyzed (functions identified, initial decompilation complete)
 </environment>
 
 <decompilation_approach>
-1. Load binary in Ghidra (if available) or provide manual decompilation guidance
-2. Analyze binary structure and identify main components
-3. Decompile functions and identify their purpose
-4. Rename functions and variables to descriptive names
-5. Update names in Ghidra for reference
-6. Generate clean C/C++ source code
-7. Document significant findings as you go
-8. Ensure generated source is compilable
-9. Preserve all original game functionality
+1. Connect to Ghidra MCP server
+2. Access the specified Ghidra project and binary
+3. Retrieve decompiled functions from MCP
+4. Identify function purposes from decompiled code
+5. Rename functions and variables to descriptive names
+6. Update names in Ghidra via MCP if possible
+7. Generate clean C/C++ source code organized into modules
+8. Document significant findings as you go
+9. Ensure generated source is compilable
+10. Preserve all original game functionality
 </decompilation_approach>
 
 <output_requirements>
@@ -196,7 +213,7 @@ Generate comprehensive decompilation output including:
 </output_requirements>
 
 <session_file>
-Write findings to: .planning/game-decompilation/{project-slug}/sessions/SESSION-001.md
+Write findings to: .planning/game-decompilation/{project-slug}/mcp-sessions/SESSION-001.md
 </session_file>
 ```
 
@@ -207,7 +224,7 @@ Task(
   prompt=filled_prompt,
   subagent_type="gsd-game-decompiler",
   model="{decompiler_model}",
-  description="Decompile {game-name}"
+  description="Decompile {project-name} from Ghidra MCP"
 )
 ```
 
@@ -234,16 +251,18 @@ Task(
 **If `## NEED MORE INFORMATION`:**
 - Show what information is missing
 - Request additional context from user:
-  - Additional game files (DLLs, assets, configs)
-  - Debug symbols (if available)
-  - Original documentation
-  - Source code snippets (if any exist)
+  - Ghidra project details
+  - MCP connection information
+  - Additional analysis needed in Ghidra
 - Spawn continuation agent with new information
 
 **If `## ENVIRONMENT ISSUE`:**
-- Display the issue (e.g., Ghidra not working, binary format unsupported)
-- Provide troubleshooting steps
-- Offer alternatives (manual decompilation, different tools)
+- Display the issue (e.g., MCP not accessible, project not found in Ghidra)
+- Provide troubleshooting steps:
+  - Verify Ghidra MCP server is running
+  - Check project name in Ghidra
+  - Verify binary is imported and analyzed
+- Offer alternatives (manual decompilation guidance)
 
 ## 7. Generate Final Deliverables
 
@@ -283,9 +302,9 @@ After successful decompilation, verify:
 ```markdown
 ## Game Decompilation Sessions
 
-| Project | Game | Status | Started | Source Code | Docs |
-|---------|------|--------|---------|-------------|------|
-| {slug} | {name} | Complete | {date} | [Source](features/decompiled_source/{slug}/) | [Docs](docs/decompilation-findings.md) |
+| Project | Game | Ghidra Project | Status | Started | Source Code | Docs |
+|---------|------|----------------|--------|---------|-------------|------|
+| {slug} | {name} | {ghidra-project} | Complete | {date} | [Source](features/decompiled_source/{slug}/) | [Docs](docs/decompilation-findings.md) |
 ```
 
 ## 8. Post-Decompilation Options
@@ -301,20 +320,22 @@ Present user with:
 </process>
 
 <tips>
-- **Binary formats:** Ghidra supports many formats (PE, ELF, Mach-O), but some require plugins
-- **Obfuscation:** Packed or obfuscated binaries need unpacking first
+- **Ghidra MCP:** Binaries must be pre-analyzed in Ghidra MCP server before decompilation
+- **MCP Connection:** Verify MCP server is accessible before starting
+- **Project Names:** Get exact Ghidra project names from the MCP server
 - **Incremental approach:** Start with main game loop, then branch out to subsystems
 - **Name conventions:** Use descriptive names that explain purpose, not just structure
-- **MCP integration:** Use MCP for understanding code patterns and generating clean output
+- **MCP integration:** Use MCP to retrieve decompiled functions efficiently
 - **Compilation:** Test compilation frequently to catch type errors early
 - **Documentation:** Document as you decompile - context is fresh
 </tips>
 
 <success_criteria>
 - [ ] Game information gathered
-- [ ] Decompilation environment verified
+- [ ] Ghidra MCP connection verified
+- [ ] Ghidra project and binary identified
 - [ ] Project directory structure created
-- [ ] gsd-game-decompiler spawned with context
+- [ ] gsd-game-decompiler spawned with MCP context
 - [ ] Decompilation results processed
 - [ ] Clean source code generated in features/decompiled_source/
 - [ ] Documentation created in docs/decompilation-findings.md

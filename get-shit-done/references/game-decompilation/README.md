@@ -2,42 +2,46 @@
 
 ## Overview
 
-This guide provides reference information for decompiling video game binaries to compilable source code using the GSD system with Ghidra and MCP integration.
+This guide provides reference information for accessing decompiled code from Ghidra MCP servers and generating compilable source code using the GSD system.
 
 ## Command
 
 Use `/gsd:decompile-game-binary` to start a decompilation project.
 
 ```
-/gsd:decompile-game-binary path/to/game.exe
+/gsd:decompile-game-binary RetroGame
 ```
+
+**Prerequisites:** Binary must already be loaded and analyzed in a running Ghidra MCP server.
 
 ## Use Cases
 
 ### 1. Game Preservation
-Preserve legacy games by converting to maintainable source code before the original becomes unreadable or incompatible with modern systems.
+Preserve legacy games by converting pre-analyzed Ghidra code to maintainable source code before the original becomes unreadable or incompatible with modern systems.
 
 ### 2. Porting
-Port games to new platforms by decompiling to clean C/C++ that can be recompiled for different architectures or operating systems.
+Port games to new platforms by accessing decompiled code from Ghidra MCP and organizing it into clean C/C++ that can be recompiled for different architectures or operating systems.
 
 ### 3. Understanding
-Learn from professional game implementations by studying decompiled source code with proper names and documentation.
+Learn from professional game implementations by studying decompiled source code retrieved from Ghidra MCP with proper names and documentation.
 
 ### 4. Enhancement
-Add features or fix bugs in legacy games by working with clean source code instead of hex editing or patching.
+Add features or fix bugs in legacy games by working with clean source code generated from Ghidra MCP analysis.
 
 ## Workflow
 
 ```
-1. Run /gsd:decompile-game-binary
-2. Provide game information
-3. Agent analyzes binary with Ghidra
-4. Agent decompiles functions systematically
-5. Agent renames functions/variables descriptively
-6. Agent generates compilable source code
-7. Agent documents findings
-8. Agent creates build system
-9. Source code ready in features/decompiled_source/
+1. Binary analyzed in Ghidra MCP server (prerequisite)
+2. Run /gsd:decompile-game-binary
+3. Connect to Ghidra MCP server
+4. Specify Ghidra project and binary
+5. Agent retrieves decompiled functions via MCP
+6. Agent organizes code into modules
+7. Agent renames functions/variables descriptively
+8. Agent generates compilable source code
+9. Agent documents findings
+10. Agent creates build system
+11. Source code ready in features/decompiled_source/
 ```
 
 ## Output Structure
@@ -73,33 +77,31 @@ docs/decompilation-findings.md  # Comprehensive documentation
 
 ## Decompilation Process
 
-### Phase 1: Binary Analysis
-1. Load binary in Ghidra
-2. Run auto-analysis
-3. Identify sections (.text, .data, .rdata, .bss)
-4. Extract strings for clues
-5. Identify imports/dependencies
-6. Document initial findings
+### Phase 1: Ghidra MCP Connection
+1. Verify Ghidra MCP server is running
+2. Connect to MCP server
+3. List available Ghidra projects
+4. Select project and binary
+5. Verify binary is analyzed
+6. Document connection details
 
-### Phase 2: System Identification
-1. Find graphics API calls (DirectX, OpenGL, Vulkan)
-2. Find audio API calls (DirectSound, OpenAL, FMOD)
-3. Find input handling (DirectInput, Raw Input)
-4. Find networking (if multiplayer)
-5. Find physics engine (if used)
-6. Document all major subsystems
+### Phase 2: Retrieve Decompiled Code
+1. Get function list from Ghidra via MCP
+2. Retrieve decompiled code for each function
+3. Access data structures from Ghidra
+4. Get symbol information
+5. Retrieve cross-reference data
 
-### Phase 3: Function Decompilation
-1. Start with main/WinMain entry point
-2. Decompile initialization functions
-3. Decompile game loop
-4. Decompile update/render functions
-5. Decompile system-specific functions
-6. Work through call graph systematically
+### Phase 3: Function Organization
+1. Categorize functions by subsystem
+2. Identify main entry point
+3. Identify initialization functions
+4. Identify game loop
+5. Group related functions
 
 ### Phase 4: Naming and Refinement
-1. Analyze function purpose from code
-2. Rename in Ghidra with descriptive names
+1. Analyze function purpose from decompiled code
+2. Create descriptive function names
 3. Identify and name data structures
 4. Add type information
 5. Document complex algorithms
@@ -127,23 +129,23 @@ docs/decompilation-findings.md  # Comprehensive documentation
 
 ## Best Practices
 
-### 1. Work Systematically
-Don't jump around - follow the execution flow from main entry point outward.
+### 1. Verify MCP Connection
+Ensure Ghidra MCP server is running and accessible before starting.
 
-### 2. Document As You Go
-Write down findings immediately while context is fresh.
+### 2. Check Binary Analysis
+Verify the binary is fully analyzed in Ghidra before retrieving decompiled code.
 
-### 3. Compile Frequently
+### 3. Work Systematically
+Retrieve function list first, then process functions in logical order (entry point → initialization → game loop → subsystems).
+
+### 4. Document As You Go
+Write down findings immediately while context is fresh from MCP retrieval.
+
+### 5. Compile Frequently
 Test compilation after each module to catch errors early.
 
-### 4. Use Version Control
-Commit progress regularly to track changes.
-
-### 5. Cross-Reference
-Use Ghidra's cross-reference features to understand function relationships.
-
-### 6. Test Incrementally
-Verify each decompiled system works before moving to the next.
+### 6. Use MCP Efficiently
+Batch retrieve related functions to minimize MCP round-trips.
 
 ### 7. Preserve Behavior
 Ensure all original functionality is maintained - don't "improve" game logic.

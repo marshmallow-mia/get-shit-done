@@ -376,36 +376,39 @@ This specialized feature helps you analyze legacy or shut-down games to understa
 ### Automated Game Binary Decompilation
 
 ```
-/gsd:decompile-game-binary [binary path]
+/gsd:decompile-game-binary [project name]
 ```
 
-**For reverse engineering and decompiling legacy game binaries to compilable source code.**
+**For accessing decompiled code from Ghidra MCP server and generating compilable source.**
 
-This specialized feature automates the decompilation of game binaries using Ghidra and MCP, producing clean, well-documented, compilable source code that preserves all original game functionality. Perfect for game preservation, porting, or understanding classic game implementations.
+This specialized feature connects to a running Ghidra MCP server to access pre-analyzed game binaries, retrieves decompiled code, and produces clean, well-documented, compilable source code that preserves all original game functionality. Perfect for game preservation, porting, or understanding classic game implementations.
+
+**Prerequisites:** Binary must already be loaded and analyzed in a running Ghidra MCP server.
 
 **What it does:**
 
-1. **Binary Analysis** — Analyzes game executable structure and identifies all major systems
-2. **Function Decompilation** — Systematically decompiles functions with Ghidra
-3. **Descriptive Naming** — Renames functions and variables to meaningful names (both in output and within Ghidra)
-4. **Source Generation** — Produces clean, organized C/C++ source code
-5. **Documentation** — Generates comprehensive findings documentation
-6. **Build System** — Creates CMake/Makefile configuration for compilation
+1. **Connect to Ghidra MCP** — Connects to running Ghidra MCP server
+2. **Access Pre-analyzed Binary** — Retrieves already-decompiled functions from Ghidra
+3. **Function Organization** — Systematically organizes decompiled code into modules
+4. **Descriptive Naming** — Renames functions and variables to meaningful names
+5. **Source Generation** — Produces clean, organized C/C++ source code
+6. **Documentation** — Generates comprehensive findings documentation
+7. **Build System** — Creates CMake/Makefile configuration for compilation
 
 **Key features:**
 
-- **Ghidra Integration** — Leverages powerful decompilation capabilities
-- **MCP-Assisted** — AI helps identify patterns and generate clean code
-- **Systematic Workflow** — Organized approach from analysis to compilable output
+- **Ghidra MCP Integration** — Works with pre-analyzed binaries in Ghidra MCP
+- **MCP-Assisted** — Retrieves decompiled code via MCP protocol
+- **Systematic Workflow** — Organized approach from MCP access to compilable output
 - **Compilable Output** — Generated source code compiles and preserves functionality
 - **Comprehensive Docs** — Complete architecture and system documentation
 
-**Use case:** You have a classic game from the 90s that no longer runs on modern systems. Using this tool, you can decompile it to clean source code, understand how it works, and recompile it for modern platforms or enhance it with new features.
+**Use case:** You have a classic game that's been analyzed in Ghidra MCP. Using this tool, you can retrieve the decompiled code, organize it into clean source files, and generate compilable source for modern platforms or enhancements.
 
 ```
-/gsd:decompile-game-binary ./RetroGame.exe
-> Game name? "Retro Platformer"
-> Platform? "Windows x86"
+/gsd:decompile-game-binary RetroGame
+> Ghidra project? "RetroGameAnalysis"
+> Binary name? "game.exe"
 > Game type? "2D Platformer"
 > Decompilation goal? "Port to modern platforms and add new features"
 ```
@@ -413,7 +416,7 @@ This specialized feature automates the decompilation of game binaries using Ghid
 **Creates:** 
 - `features/decompiled_source/{game}/` — Compilable source code
 - `docs/decompilation-findings.md` — Architecture and system documentation
-- `.planning/game-decompilation/{game}/` — Ghidra projects and session logs
+- `.planning/game-decompilation/{game}/` — MCP session logs
 
 **References:**
 - [Decompilation Guide](/get-shit-done/references/game-decompilation/README.md)
@@ -562,7 +565,7 @@ You're never locked in. The system adapts.
 | `/gsd:debug [desc]` | Systematic debugging with persistent state |
 | `/gsd:quick` | Execute ad-hoc task with GSD guarantees |
 | `/gsd:analyze-game-protocol [binary]` | Reverse engineer game server protocols using Ghidra and MCP |
-| `/gsd:decompile-game-binary [binary]` | Decompile game binaries to compilable source code using Ghidra and MCP |
+| `/gsd:decompile-game-binary [project]` | Access decompiled code from Ghidra MCP and generate compilable source |
 
 <sup>¹ Contributed by reddit user OracleGreyBeard</sup>
 
