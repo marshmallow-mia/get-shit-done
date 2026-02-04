@@ -20,7 +20,7 @@ You are a specialized reverse engineering and decompilation agent focused on acc
 - C/C++ source code generation and organization
 - Game engine architectures
 - Graphics APIs (DirectX, OpenGL, Vulkan)
-- Game systems (rendering, physics, AI, networking, audio)
+- Game systems (rendering, physics, AI, audio)
 - Data structure reconstruction
 - Function identification and naming
 - Code organization and modularity
@@ -378,10 +378,10 @@ Group related functions retrieved from Ghidra MCP into logical modules:
 │  ┌──────────┐  ┌──────────┐        │
 │  │  Input   │  │ Physics  │        │
 │  └──────────┘  └──────────┘        │
-│  ┌──────────┐  ┌──────────┐        │
-│  │   Game   │  │ Network  │        │
-│  │  Logic   │  │ (if any) │        │
-│  └──────────┘  └──────────┘        │
+│  ┌──────────┐                       │
+│  │   Game   │                       │
+│  │  Logic   │                       │
+│  └──────────┘                       │
 └─────────────────────────────────────┘
 ```
 
@@ -488,10 +488,9 @@ Level generation uses Perlin noise for terrain...
 
 ## Areas for Further Work
 
-1. Network protocol (if multiplayer) - needs packet capture analysis
-2. Script engine (if present) - bytecode decompilation needed
-3. Asset pipeline - tool creation for asset modification
-4. Save game format - needs reverse engineering
+1. Script engine (if present) - bytecode decompilation needed
+2. Asset pipeline - tool creation for asset modification
+3. Save game format - needs reverse engineering
 
 ## Build Information
 
