@@ -358,6 +358,19 @@ Reverse engineer video game server protocols using Ghidra and MCP.
 Usage: `/gsd:analyze-game-protocol ./game.exe`
 Usage: `/gsd:analyze-game-protocol` (interactive mode)
 
+**`/gsd:decompile-game-binary [binary]`**
+Decompile game binaries to compilable source code using Ghidra and MCP.
+
+- Automate reverse engineering and decompilation of legacy game binaries
+- Rename functions and variables to descriptive names (in output and Ghidra)
+- Generate clean, compilable C/C++ source code preserving all functionality
+- Document architecture, systems, data structures, and algorithms
+- Create build system (CMake/Makefile) for compilation
+- Perfect for game preservation, porting, or understanding implementations
+
+Usage: `/gsd:decompile-game-binary ./retrogame.exe`
+Usage: `/gsd:decompile-game-binary` (interactive mode)
+
 ## Files & Structure
 
 ```
